@@ -1,0 +1,59 @@
+version: '3'
+services:
+  app:
+    image: jheffh2012/cluster-fpm:latest
+    restart: unless-stopped
+    ports:
+      - 9000:9000
+    volumes:
+      # - .:/var/www
+      - .docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    links:
+      - mysql
+      - redis
+    depends_on:
+      - mysql
+
+  webserver:
+    image: jheffh2012/cluster-nginx:latest
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    depends_on:
+      - mysql
+    volumes:
+      # - .:/var/www
+      - .docker/nginx/conf.d/:/etc/nginx/conf.d/
+    ports:
+      - "8000:80"
+      - "443:443"
+
+  mysql:
+    image: mysql:5.7
+    hostname: mysql
+    restart: always
+    volumes:
+      - dbdata:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: cluster
+      # MYSQL_USER: root
+      # MYSQL_PASSWORD: TCCPucMinas
+      MYSQL_ROOT_PASSWORD: TCCPucMinas
+      MYSQL_HOST: mysql
+
+  redis:
+    image: redis:4.0-alpine
+    ports:
+      - 16379:6379
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 8080:80
+    environment:
+      PMA_HOST: mysql
+
+#Volumes
+volumes:
+  dbdata:
+    driver: local

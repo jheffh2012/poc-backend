@@ -1,0 +1,5 @@
+build-nginx:
+	docker image build -t jheffh2012/cluster-nginx:latest --target nginx .
+
+build-fpm:
+	docker image build -t jheffh2012/cluster-fpm:latest --target build-prod .
